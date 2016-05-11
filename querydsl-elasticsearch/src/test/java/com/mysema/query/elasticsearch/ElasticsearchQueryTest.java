@@ -16,7 +16,7 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Requests;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class ElasticsearchQueryTest {
 
     @BeforeClass
     public static void beforeClass() {
-        ImmutableSettings.Builder settings = ImmutableSettings.builder().put("path.data", ElasticsearchQueryTest.class.getResource("").getPath());
+        Settings.Builder settings = Settings.builder().put("path.home", "/tmp/").put("path.data", ElasticsearchQueryTest.class.getResource("").getPath());
         Node node = NodeBuilder.nodeBuilder().local(true).settings(settings).node();
         client = node.client();
 
@@ -296,7 +296,7 @@ public class ElasticsearchQueryTest {
     }
 
     public void refresh(String indexName, boolean waitForOperation) {
-        client.admin().indices().refresh(refreshRequest(indexName).force(waitForOperation)).actionGet();
+        client.admin().indices().refresh(refreshRequest(indexName)).actionGet();
     }
 
 }
