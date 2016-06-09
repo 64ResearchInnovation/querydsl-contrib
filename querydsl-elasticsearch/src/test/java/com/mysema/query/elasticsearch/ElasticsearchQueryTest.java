@@ -10,7 +10,6 @@ import com.mysema.query.elasticsearch.domain.User;
 import com.mysema.query.elasticsearch.jackson.JacksonElasticsearchQueries;
 import com.mysema.query.types.OrderSpecifier;
 import com.mysema.query.types.Predicate;
-import com.mysema.testutil.ExternalDB;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -22,7 +21,6 @@ import org.elasticsearch.node.NodeBuilder;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import java.util.Collections;
 import java.util.Date;
@@ -53,7 +51,7 @@ public class ElasticsearchQueryTest {
 
     @BeforeClass
     public static void beforeClass() {
-        Settings.Builder settings = Settings.builder().put("path.home", "/tmp/").put("path.data", ElasticsearchQueryTest.class.getResource("").getPath());
+        Settings.Builder settings = Settings.builder().put("path.home", "/tmp/").put("path.data", "data");
         Node node = NodeBuilder.nodeBuilder().local(true).settings(settings).node();
         client = node.client();
 

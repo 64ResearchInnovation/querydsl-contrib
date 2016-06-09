@@ -21,16 +21,15 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.IdsQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
 import javax.annotation.Nullable;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Set;
-
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
 /**
  * Serializes the given Querydsl query to a String query for Elasticsearch
@@ -39,7 +38,9 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
  */
 public class ElasticsearchSerializer implements Visitor<Object, BoolQueryBuilder> {
 
-    /** AND and OR operands. */
+    /**
+     * AND and OR operands.
+     */
     private static final Set<Operator<?>> AND_OR = Sets.<Operator<?>>newHashSet(Ops.AND, Ops.OR);
 
     public Object handle(Expression<?> expression) {
@@ -91,9 +92,17 @@ public class ElasticsearchSerializer implements Visitor<Object, BoolQueryBuilder
             if (keyArg instanceof Path<?> && isIdPath((Path<?>) expr.getArg(0))) {
                 return QueryBuilders.idsQuery().ids(value);
             } else {
+                String field = asDBKey(expr, 0);
+                Object result = null;
                 // Currently all queries are made with ignore case sensitive
                 // Because the query to get exact value have to be run on a not_analyzed field
-                return QueryBuilders.queryStringQuery(value).field(asDBKey(expr, 0));
+                // Use phrase_query for queries containing multiple words
+                if (value.contains(" ") && !isValidDate(value) && !isValidDateTime(value)) {
+                    result = QueryBuilders.matchPhraseQuery(field, value);
+                } else {
+                    result = QueryBuilders.queryStringQuery(value).field(field);
+                }
+                return result;
             }
 
         } else if (op == Ops.EQ_IGNORE_CASE) {
@@ -296,6 +305,22 @@ public class ElasticsearchSerializer implements Visitor<Object, BoolQueryBuilder
         if (query != null) {
             context.should(query);
         }
+    }
+
+    // checks if a string is a valid Date
+    private boolean isValidDate(String s) {
+        SimpleDateFormat sdf = new SimpleDateFormat(
+                "EEE MMM dd HH:mm:ss z yyyy");
+        sdf.setLenient(false);
+        return sdf.parse(s, new ParsePosition(0)) != null;
+    }
+
+    // checks if a string is a valid DateTime
+    private boolean isValidDateTime(String s) {
+        SimpleDateFormat sdf = new SimpleDateFormat(
+                "YYYY-MM-dd HH:mm:ss.SSS");
+        sdf.setLenient(false);
+        return sdf.parse(s, new ParsePosition(0)) != null;
     }
 
 }
