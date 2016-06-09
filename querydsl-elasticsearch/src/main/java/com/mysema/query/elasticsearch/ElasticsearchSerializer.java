@@ -308,7 +308,7 @@ public class ElasticsearchSerializer implements Visitor<Object, BoolQueryBuilder
     }
 
     // checks if a string is a valid Date
-    private boolean isValidDate(String s) {
+    protected boolean isValidDate(String s) {
         SimpleDateFormat sdf = new SimpleDateFormat(
                 "EEE MMM dd HH:mm:ss z yyyy");
         sdf.setLenient(false);
@@ -316,7 +316,7 @@ public class ElasticsearchSerializer implements Visitor<Object, BoolQueryBuilder
     }
 
     // checks if a string is a valid DateTime
-    private boolean isValidDateTime(String s) {
+    protected boolean isValidDateTime(String s) {
         SimpleDateFormat sdf = new SimpleDateFormat(
                 "YYYY-MM-dd HH:mm:ss.SSS");
         sdf.setLenient(false);
