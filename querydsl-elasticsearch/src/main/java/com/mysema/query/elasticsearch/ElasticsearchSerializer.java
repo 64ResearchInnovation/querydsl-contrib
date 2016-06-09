@@ -281,7 +281,7 @@ public class ElasticsearchSerializer implements Visitor<Object, BoolQueryBuilder
         return "id".equals(expr.getMetadata().getElement().toString());
     }
 
-    private QueryBuilder visitSubAndOr(Operator<?> op, BoolQueryBuilder context, Operation<?> subOperation) {
+    protected QueryBuilder visitSubAndOr(Operator<?> op, BoolQueryBuilder context, Operation<?> subOperation) {
         QueryBuilder result;
         if (AND_OR.contains(subOperation.getOperator()) && subOperation.getOperator() != op) {
             // Opposite case, if current operator is an AND so sub operation is a OR, so create a sub query
@@ -295,13 +295,13 @@ public class ElasticsearchSerializer implements Visitor<Object, BoolQueryBuilder
         return result;
     }
 
-    private void safeMust(BoolQueryBuilder context, QueryBuilder query) {
+    protected void safeMust(BoolQueryBuilder context, QueryBuilder query) {
         if (query != null) {
             context.must(query);
         }
     }
 
-    private void safeShould(BoolQueryBuilder context, QueryBuilder query) {
+    protected void safeShould(BoolQueryBuilder context, QueryBuilder query) {
         if (query != null) {
             context.should(query);
         }
