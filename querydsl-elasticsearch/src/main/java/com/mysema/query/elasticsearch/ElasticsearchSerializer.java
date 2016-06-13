@@ -227,9 +227,10 @@ public class ElasticsearchSerializer implements Visitor<Object, BoolQueryBuilder
             return QueryBuilders.queryStringQuery("*" + value + "*").field(asDBKey(expr, 0)).analyzeWildcard(true);
 
         } else if (op == Ops.LIKE) {
-            String value = (StringUtils.toString(asDBValue(expr, 1))).replace('%', '*');
+            String value = (StringUtils.toString(asDBValue(expr, 1)));
             String field = asDBKey(expr, 0);
             // the query_string option works only for analyzed phrase-based fields
+            // String value = (StringUtils.toString(asDBValue(expr, 1))).replace('%', '*');
             // result = QueryBuilders.queryStringQuery(value.replace('%', '*')).field(asDBKey(expr, 0)).analyzeWildcard(true);
             // on the not_analyzed fields a wildcard query should be used instead
             return QueryBuilders.wildcardQuery(field, value);
